@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.aivinog1</groupId>
+  <artifactId>graalvm-sample-logging</artifactId>
+  <version>1.0-SNAPSHOT</version>
+
+  <properties>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <plugin.version.graalvm-native-image>21.0.0</plugin.version.graalvm-native-image>
+    <version.slf4j>1.7.30</version.slf4j>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.zeebe</groupId>
+        <artifactId>zeebe-client-java</artifactId>
+        <version>0.27.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-jdk14</artifactId>
+        <version>${version.slf4j}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.graalvm.sdk</groupId>
+      <artifactId>graal-sdk</artifactId>
+      <version>${plugin.version.graalvm-native-image}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.zeebe</groupId>
+      <artifactId>zeebe-client-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>native</id>
+      <activation>
+        <property>
+          <name>${env.GRAALVM_HOME}</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.graalvm.nativeimage</groupId>
+            <artifactId>native-image-maven-plugin</artifactId>
+            <version>${plugin.version.graalvm-native-image}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>native-image</goal>
+                </goals>
+                <phase>package</phase>
+              </execution>
+            </executions>
+            <configuration>
+              <skip>false</skip>
+              <imageName>sample</imageName>
+              <mainClass>org.aivinog1.logging.App</mainClass>
+              <buildArgs>
+                --no-fallback --verbose --allow-incomplete-classpath
+                --report-unsupported-elements-at-runtime
+                --features=org.graalvm.home.HomeFinderFeature
+
+                --initialize-at-build-time=org.slf4j.impl.StaticLoggerBinder
+                --initialize-at-build-time=org.slf4j.impl.JDK14LoggerAdapter
+                --initialize-at-build-time=org.slf4j.LoggerFactory
+
+                --initialize-at-run-time=io.netty.buffer.UnpooledDirectByteBuf
+                --initialize-at-run-time=io.netty.buffer.AbstractPooledDerivedByteBuf
+                --initialize-at-run-time=io.netty.buffer.UnpooledHeapByteBuf
+                --initialize-at-run-time=io.netty.handler.ssl.PemValue
+                --initialize-at-run-time=io.netty.util.AbstractReferenceCounted
+                --initialize-at-run-time=io.netty.handler.ssl.PemPrivateKey
+                --initialize-at-run-time=io.netty.buffer.PooledByteBufAllocator
+                --initialize-at-run-time=io.netty.buffer.UnpooledUnsafeDirectByteBuf
+                --initialize-at-run-time=io.netty.buffer.ByteBufUtil
+                --initialize-at-run-time=io.netty.buffer.UnpooledByteBufAllocator$InstrumentedUnpooledUnsafeDirectByteBuf
+                --initialize-at-run-time=io.netty.buffer.AbstractReferenceCountedByteBuf
+                --initialize-at-run-time=io.netty.buffer.ByteBufAllocator
+                --initialize-at-run-time=io.netty.handler.ssl.JdkNpnApplicationProtocolNegotiator
+                --initialize-at-run-time=io.netty.handler.ssl.OpenSsl
+                --initialize-at-run-time=io.netty.internal.tcnative.SSL
+                --initialize-at-run-time=io.netty.handler.ssl.ReferenceCountedOpenSslEngine
+                --initialize-at-run-time=io.netty.internal.tcnative.CertificateVerifier
+                --initialize-at-run-time=io.netty.util.internal.logging.Log4JLogger
+                --initialize-at-run-time=io.netty.handler.ssl.JettyNpnSslEngine
+                --initialize-at-run-time=io.netty.handler.ssl.JettyAlpnSslEngine$ClientEngine
+                --initialize-at-run-time=io.netty.handler.ssl.JettyAlpnSslEngine$ServerEngine
+                --initialize-at-run-time=io.netty.handler.ssl.ConscryptAlpnSslEngine
+              </buildArgs>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+</project>
