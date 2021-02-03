@@ -13,6 +13,7 @@
     <maven.compiler.target>11</maven.compiler.target>
     <plugin.version.graalvm-native-image>21.0.0</plugin.version.graalvm-native-image>
     <version.slf4j>1.7.30</version.slf4j>
+    <version.grpc>1.35.0</version.grpc>
   </properties>
 
   <dependencyManagement>
@@ -34,6 +35,13 @@
     <dependency>
       <groupId>org.graalvm.sdk</groupId>
       <artifactId>graal-sdk</artifactId>
+      <version>${plugin.version.graalvm-native-image}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.graalvm.nativeimage</groupId>
+      <artifactId>svm</artifactId>
       <version>${plugin.version.graalvm-native-image}</version>
       <scope>provided</scope>
     </dependency>
@@ -75,8 +83,7 @@
               <imageName>sample</imageName>
               <mainClass>org.aivinog1.logging.App</mainClass>
               <buildArgs>
-                --no-fallback --verbose --allow-incomplete-classpath
-                --report-unsupported-elements-at-runtime
+                --no-fallback --verbose
                 --features=org.graalvm.home.HomeFinderFeature
 
                 --initialize-at-build-time=org.slf4j.impl.StaticLoggerBinder
